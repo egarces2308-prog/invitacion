@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Invitación Digital — XV Años</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Great+Vibes&family=Josefin+Sans:wght@100;200;300;400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    :root{
+      --orange:#E8621A; --orange-soft:#F2874A; --magenta:#C4305A;
+      --pink:#E8789A;   --candy:#F0A8B8;       --yellow:#F5D84A;
+      --beige:#FAF3E8;  --beige-dark:#F0E4CC;
+      --gold:#C9963A;   --text-dark:#3A1A08;   --text-mid:#8B4513;
+      --white:#ffffff;
+      --font-title:'Great Vibes',cursive;
+      --font-serif:'Cormorant Garamond',serif;
+      --font-sans:'Josefin Sans',sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+      background:var(--beige);
+      color:var(--text-dark);
+      font-family:var(--font-sans);
+      font-weight:200;letter-spacing:.04em;overflow-x:hidden;
+    }
+
+    /* REVEAL (Animación de caída) */
+    .reveal {
+      opacity: 0;
+      transform: translateY(-50px); /* El valor negativo hace que inicie arriba */
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0); /* Cae hasta su posición original */
+    }
+
+    /* CARRUSEL DE FOTOS */
+    .carousel-wrapper {
+      width: 100%;
+      overflow: hidden;
+      padding: 10px 0 20px;
+    }
+    .carousel-track {
+      display: flex;
+      gap: 15px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory; /* Hace que la foto se centre sola al soltar el dedo */
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      padding: 0 20px; 
+    }
+    .carousel-track::-webkit-scrollbar {
+      display: none; /* Oculta la barra espantosa del navegador */
+    }
+    .carousel-slide {
+      flex: 0 0 75%; /* Muestra una foto grande y asoma un pedacito de la siguiente */
+      scroll-snap-align: center;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(196, 48, 90, 0.15);
+      border: 3px solid #fff;
+    }
+    .carousel-slide img {
+      width: 100%;
+      height: 350px;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* MUSIC BTN */
+    #music-btn{
+      position:fixed;top:16px;right:16px;z-index:999;
+      width:48px;height:48px;border-radius:50%;
+      border:2px solid var(--orange);
+      background:rgba(250,243,232,.92);backdrop-filter:blur(8px);
+      color:var(--orange);font-size:16px;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      transition:background .3s,transform .3s;
+      box-shadow:0 4px 16px rgba(232,98,26,.25);
+    }
+    #music-btn:hover{background:var(--orange);color:#fff;transform:scale(1.08)}
+    #music-btn.playing{animation:pulse-ring 2s infinite}
+    @keyframes pulse-ring{
+      0%{box-shadow:0 0 0 0 rgba(232,98,26,.5)}
+      70%{box-shadow:0 0 0 14px rgba(232,98,26,0)}
+      100%{box-shadow:0 0 0 0 rgba(232,98,26,0)}
+    }
+
+    /* MARCO DE PORTADA (Independiente) */
+    .frame-block{position:relative;width:100%;padding-bottom:177.8%;margin:0 auto;max-width:480px;}
+    .frame-block .frame-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;z-index:0;border-radius: 200px 200px 0 0; opacity: 0.4;}
+    .frame-block .frame-inner{position:absolute;top:7%; left:10%; right:10%; bottom:24%;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px 16px;}
+    
+    /* MARCOS DE LAS SECCIONES */
+    .card-frame{
+      position:relative;
+      width:100%;
+      max-width:440px;
+      margin:0 auto;
+      border-radius:24px;
+      overflow:hidden;
+      box-shadow:0 10px 30px rgba(196,48,90,0.1);
+      background-color:#fff;
+      /* 👇 SOLUCIÓN: Forzar altura mínima para evitar el recorte */
+      min-height: 520px; 
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .card-frame .frame-img-card{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover; 
+      object-position:center;
+      pointer-events:none;
+      z-index:0;
+    }
+    .card-frame .card-frame-inner{
+      position:relative;
+      z-index:2;
+      width: 100%;
+      /* 👇 Reducimos este valor porque la tarjeta ya se centra sola */
+      padding: 40px 25px; 
+      background:rgba(255,255,255,0.4); 
+    }
+
+    /* HERO */
+    #hero{background:var(--beige);overflow:hidden;padding:70px 0 10px;}
+    .hero-eyebrow{font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:var(--orange);display:block;margin-bottom:10px;}
+    .hero-name{font-family:var(--font-title);font-size:clamp(52px,13vw,90px);color:var(--orange);line-height:1;text-shadow:1px 2px 0 rgba(196,48,90,.18);}
+    .hero-divider{display:flex;align-items:center;gap:10px;justify-content:center;margin:14px auto;color:var(--magenta);font-size:13px;opacity:.8;}
+    .hero-divider::before,.hero-divider::after{content:'';flex:1;max-width:50px;height:1px;background:linear-gradient(90deg,transparent,var(--magenta));}
+    .hero-divider::after{background:linear-gradient(270deg,transparent,var(--magenta))}
+    .hero-date{font-family:var(--font-serif);font-size:clamp(14px,4vw,20px);font-style:italic;font-weight:300;color:var(--magenta);letter-spacing:.06em;}
+    .hero-quote{margin-top:10px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--text-mid);opacity:.85;line-height:1.8;}
+    .hero-scroll-hint{display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--orange);font-size:9px;letter-spacing:.2em;text-transform:uppercase;animation:bounce 2.2s infinite;padding:16px 0 24px;}
+
+    /* SECTIONS */
+    section{padding:56px 20px;max-width:520px;margin:0 auto;position:relative}
+    .section-label{font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:var(--orange);display:block;margin-bottom:10px}
+    .section-title{font-family:var(--font-title);font-size:clamp(44px,11vw,64px);color:var(--orange);line-height:1;margin-bottom:16px}
+    .thin-line{width:50px;height:2px;background:linear-gradient(90deg,var(--magenta),var(--orange),var(--yellow));margin:0 auto 34px;border-radius:2px}
+
+    /* COUNTDOWN */
+    #countdown{text-align:center}
+    .countdown-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+    .cd-box{background:rgba(255,255,255,.85);border:1.5px solid var(--beige-dark);border-radius:10px;padding:16px 4px 12px;box-shadow:0 4px 14px rgba(232,98,26,.09);}
+    .cd-num{font-family:var(--font-serif);font-size:clamp(24px,7vw,40px);font-weight:300;color:var(--orange);display:block;line-height:1}
+    .cd-label{font-size:7px;letter-spacing:.28em;text-transform:uppercase;color:var(--text-mid);margin-top:5px;display:block}
+
+    /* LOCATIONS */
+    #locations{text-align:center}
+    .location-cards{display:flex;flex-direction:column;gap:16px}
+    .loc-card{background:rgba(255,255,255,.88);border:1.5px solid var(--beige-dark);border-radius:14px;overflow:hidden;text-align:left;box-shadow:0 6px 20px rgba(196,48,90,.09);}
+    .loc-card-header{background:linear-gradient(135deg,var(--magenta),var(--orange));padding:13px 18px;display:flex;align-items:center;gap:11px;}
+    .loc-card-header i{font-size:17px;color:#fff}
+    .loc-type{font-weight:300;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:#fff}
+    .loc-body{padding:20px 18px}
+    .loc-name{font-family:var(--font-serif);font-size:21px;font-style:italic;color:var(--orange);margin-bottom:12px}
+    .loc-detail{display:flex;align-items:flex-start;gap:9px;margin-bottom:9px;font-size:11px;color:var(--text-mid);letter-spacing:.05em}
+    .loc-detail i{color:var(--magenta);font-size:11px;margin-top:2px;flex-shrink:0}
+    .btn-maps{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;padding:11px 18px;background:transparent;border:1.5px solid var(--orange);color:var(--orange);font-family:var(--font-sans);font-weight:300;font-size:9px;letter-spacing:.22em;text-transform:uppercase;text-decoration:none;border-radius:30px;transition:background .3s,color .3s;cursor:pointer;}
+    .btn-maps:hover{background:var(--orange);color:#fff}
+
+    /* DRESS CODE */
+    #dresscode{text-align:center}
+    .dc-icon-wrap{width:68px;height:68px;border-radius:50%;border:2px solid var(--orange);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;background:#fff;box-shadow:0 4px 16px rgba(232,98,26,.18);}
+    .dc-icon-wrap i{font-size:26px;color:var(--orange)}
+    .dc-type{font-family:var(--font-serif);font-size:26px;font-style:italic;color:var(--magenta);margin-bottom:8px}
+    .dc-note{font-size:11px;color:var(--text-mid);letter-spacing:.07em;line-height:1.8;margin-bottom:22px}
+    .dc-forbidden{display:inline-flex;align-items:center;gap:8px;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#c0392b;border:1.5px solid rgba(192,57,43,.3);padding:7px 16px;border-radius:20px;margin-bottom:26px;background:rgba(255,255,255,.7);}
+    .palette{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+    .swatch{display:flex;flex-direction:column;align-items:center;gap:5px}
+    .swatch-circle{width:36px;height:36px;border-radius:50%;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.15)}
+    .swatch-name{font-size:7px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-mid);text-align:center}
+
+    /* REGALOS */
+    #regalos{text-align:center}
+    .regalo-text{font-family:var(--font-serif);font-size:15px;font-style:italic;color:var(--text-mid);line-height:1.9;margin-bottom:26px}
+    .btn-toggle{display:inline-flex;align-items:center;gap:10px;padding:13px 28px;background:linear-gradient(135deg,var(--magenta),var(--orange));color:#fff;border:none;border-radius:30px;cursor:pointer;font-family:var(--font-sans);font-weight:300;font-size:9px;letter-spacing:.28em;text-transform:uppercase;box-shadow:0 6px 20px rgba(196,48,90,.3);transition:opacity .3s,transform .2s;}
+    .btn-toggle:hover{opacity:.88;transform:translateY(-2px)}
+    .gift-panel{display:none;margin-top:20px;background:rgba(255,255,255,.92);border:1.5px solid var(--beige-dark);border-radius:14px;padding:22px 18px;text-align:left;box-shadow:0 6px 20px rgba(232,98,26,.08);}
+    .gift-panel.open{display:block;animation:fadeUp .4s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .gift-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--beige-dark);font-size:12px}
+    .gift-row:last-child{border-bottom:none}
+    .gift-key{color:var(--text-mid);font-size:8px;letter-spacing:.18em;text-transform:uppercase}
+    .gift-val{color:var(--orange);font-family:var(--font-serif);font-size:15px;display:block;margin-top:3px}
+    .copy-btn{background:none;border:1.5px solid var(--orange);color:var(--orange);font-size:9px;padding:5px 10px;border-radius:20px;cursor:pointer;letter-spacing:.1em;transition:background .2s,color .2s;white-space:nowrap;}
+    .copy-btn:hover{background:var(--orange);color:#fff}
+
+    /* RSVP */
+    #rsvp{text-align:center}
+    .rsvp-intro{font-family:var(--font-serif);font-size:15px;font-style:italic;color:var(--text-mid);line-height:1.9;margin-bottom:30px}
+    .form-group{margin-bottom:14px;text-align:left}
+    .form-group label{display:block;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--orange);margin-bottom:7px}
+    .form-group input,.form-group select{width:100%;background:#fff;border:1.5px solid var(--beige-dark);border-radius:10px;padding:12px 15px;color:var(--text-dark);font-family:var(--font-sans);font-weight:200;font-size:13px;outline:none;transition:border-color .3s;-webkit-appearance:none; appearance:none;}
+    .form-group input:focus,.form-group select:focus{border-color:var(--orange)}
+    .btn-whatsapp{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:15px;background:#25d366;color:#fff;border:none;border-radius:30px;font-family:var(--font-sans);font-weight:300;font-size:10px;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;box-shadow:0 6px 20px rgba(37,211,102,.28);transition:opacity .3s,transform .2s;margin-top:10px;}
+    .btn-whatsapp:hover{opacity:.88;transform:translateY(-2px)}
+    .btn-whatsapp i{font-size:19px}
+
+    /* ORNAMENT & FOOTER */
+    .ornament{text-align:center;font-size:20px;color:var(--orange);opacity:.55;padding:8px 0}
+    footer{text-align:center;padding:46px 24px 72px;border-top:1px solid var(--beige-dark);position:relative;overflow:hidden}
+    .footer-name{font-family:var(--font-title);font-size:58px;color:var(--orange);margin-bottom:12px}
+    .footer-quote{font-family:var(--font-serif);font-style:italic;font-size:14px;color:var(--text-mid);max-width:300px;margin:0 auto 20px;line-height:1.9}
+    .footer-copy{font-size:8px;letter-spacing:.25em;text-transform:uppercase;color:rgba(139,69,19,.35)}
+  </style>
+</head>
+<body>
+
+<audio id="bg-music" loop>
+  <source src="Audio/cancion-invitacion.mpeg" type="audio/mpeg"/>
+</audio>
+<button id="music-btn" aria-label="Reproducir música"><i class="fa-solid fa-music"></i></button>
+
+<!-- PORTADA (Sin el marco floral, usa una foto genérica o de fondo) -->
+<section id="hero">
+  <div class="frame-block reveal visible" style="max-width:420px;margin:0 auto">
+    <!-- IMAGEN DE FONDO DE LA PORTADA -->
+    <img class="frame-img" src="https://images.unsplash.com/photo-1518895949257-7621c3c786d7?q=80&w=600&auto=format&fit=crop" alt="Fondo Portada"/>
+      <div class="frame-inner">
+      <span class="hero-eyebrow">Una noche especial · 2025</span>
+      <div style="width:min(110px,28vw);height:min(110px,28vw);border-radius:50%;overflow:hidden;border:3px solid #C9963A;box-shadow:0 4px 18px rgba(196,48,90,.3);margin-bottom:10px;flex-shrink:0">
+        
+        <!-- FOTO DE LA FESTEJADA -->
+        <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=300&q=80" style="width:100%;height:100%;object-fit:cover" alt="Festejada"/>
+      
+      </div>
+      <h1 class="hero-name">Ariadna Maylen</h1>
+      <div class="hero-divider"></div>
+      <p class="hero-date">Sábado · 4 de Julio, 2026</p>
+      <p class="hero-quote">Mis XV Años<br>Te invita a celebrar</p>
+    </div>
+  </div>
+  <div class="hero-scroll-hint reveal visible">
+    <i class="fa-solid fa-chevron-down"></i>
+    <span>Desliza</span>
+  </div>
+</section>
+
+<!-- GALERÍA DE FOTOS -->
+<section id="galeria" class="reveal" style="text-align:center; padding:40px 0;">
+  <span class="section-label">Mis momentos</span>
+  <h2 class="section-title">Galería</h2>
+  <div class="thin-line"></div>
+  
+  <div class="carousel-wrapper">
+    <div class="carousel-track">
+      
+      <!-- FOTO 1 -->
+      <div class="carousel-slide">
+        <!-- Cambia "foto1.jpg" por el nombre de tu foto en la carpeta img -->
+        <img src="img/foto1.jpg" alt="Foto Valentina 1">
+      </div>
+      
+      <!-- FOTO 2 -->
+      <div class="carousel-slide">
+        <img src="img/foto2.jpg" alt="Foto Valentina 2">
+      </div>
+      
+      <!-- FOTO 3 -->
+      <div class="carousel-slide">
+        <img src="img/foto3.jpg" alt="Foto Valentina 3">
+      </div>
+      
+      <!-- FOTO 4 -->
+      <div class="carousel-slide">
+        <img src="img/foto4.jpg" alt="Foto Valentina 4">
+      </div>
+
+    </div>
+  </div>
+  <p style="font-size: 10px; color: var(--text-mid); margin-top: 10px; letter-spacing: 0.1em; opacity: 0.8;">
+    <i class="fa-solid fa-arrows-left-right"></i> Desliza para ver más
+  </p>
+</section>
+
+<!-- COUNTDOWN -->
+<section id="countdown" class="reveal" style="text-align:center;padding:40px 8px">
+  <span class="section-label">El gran día llega en</span>
+  <h2 class="section-title">Cuenta<br>Regresiva</h2>
+  <div class="thin-line"></div>
+  
+  <div class="card-frame">
+    <!-- TU MARCO FLORAL APLICADO AQUÍ -->
+    <img class="frame-img-card" src="img/marco-tarjetas.jpeg" alt="Marco floral"/>
+    <div class="card-frame-inner">
+      
+      <!-- Frase emotiva superior -->
+      <p style="font-family: var(--font-serif); font-size: 20px; font-style: italic; color: var(--text-mid); margin-bottom: 25px; line-height: 1.5;">
+        Falta muy poco para compartir<br>este momento tan especial...
+      </p>
+
+      <!-- Tu contador original -->
+      <div class="countdown-grid">
+        <div class="cd-box"><span class="cd-num" id="cd-days">00</span><span class="cd-label">Días</span></div>
+        <div class="cd-box"><span class="cd-num" id="cd-hours">00</span><span class="cd-label">Horas</span></div>
+        <div class="cd-box"><span class="cd-num" id="cd-mins">00</span><span class="cd-label">Min</span></div>
+        <div class="cd-box"><span class="cd-num" id="cd-secs">00</span><span class="cd-label">Seg</span></div>
+      </div>
+
+      <!-- Detalle gráfico inferior -->
+      <div style="margin-top: 35px; color: var(--orange);">
+        <i class="fa-regular fa-clock" style="font-size: 28px; margin-bottom: 12px; opacity: 0.8;"></i>
+        <p style="font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; font-weight: 300;">Los esperamos con mucho cariño</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+
+<!-- LOCATIONS -->
+<section id="locations" class="reveal" style="text-align:center;padding:40px 8px">
+  <span class="section-label">Dónde & Cuándo</span>
+  <h2 class="section-title">El Lugar</h2>
+  <div class="thin-line"></div>
+  
+  <div class="card-frame">
+    <!-- TU MARCO FLORAL APLICADO AQUÍ -->
+    <img class="frame-img-card" src="img/marco-tarjetas.jpeg" alt="Marco floral"/>
+    <div class="card-frame-inner">
+      <div class="location-cards">
+        <div class="loc-card">
+          <div class="loc-card-header">
+            <i class="fa-solid fa-church"></i>
+            <span class="loc-type">Ceremonia Religiosa</span>
+          </div>
+          <div class="loc-body">
+            <p class="loc-name">Parroquia de San Juan Pablo</p>
+            <div class="loc-detail"><i class="fa-regular fa-clock"></i><span>Viernes 3 de Julio · 17:00 hrs.</span></div>
+            <div class="loc-detail"><i class="fa-solid fa-location-dot"></i><span>Avenida Puesta del Sol #2,Fraccionamiento Puesta del Sol, Av. Puesta Del Sol, Cdad. del Carmen, Camp.</span></div>
+            <a class="btn-maps" href="https://maps.app.goo.gl/FfiB7mvadmEsFedL9" target="_blank" rel="noopener"><i class="fa-solid fa-map-location-dot"></i> Ver en Google Maps</a>
+          </div>
+        </div>
+        <div class="loc-card">
+          <div class="loc-card-header">
+            <i class="fa-solid fa-champagne-glasses"></i>
+            <span class="loc-type">Recepción & Fiesta</span>
+          </div>
+          <div class="loc-body">
+            <p class="loc-name">Palapa Azul Turquesa</p>
+            <div class="loc-detail"><i class="fa-regular fa-clock"></i><span>Sábado 4 de Julio · 14:00 hrs.</span></div>
+            <div class="loc-detail"><i class="fa-solid fa-location-dot"></i><span> Km 13.5 Carretera Carmen-Puerto Real, Ciudad del Carmen, Campeche.</span></div>
+            <a class="btn-maps" href="https://maps.app.goo.gl/WYPczv2vqHc45cF77" target="_blank" rel="noopener"><i class="fa-solid fa-map-location-dot"></i> Ver en Google Maps</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- DRESS CODE -->
+<section id="dresscode" class="reveal" style="text-align:center;padding:40px 8px">
+  <span class="section-label">Vestimenta</span>
+  <h2 class="section-title">Dress<br>Code</h2>
+  <div class="thin-line"></div>
+  
+  <div class="card-frame">
+    <!-- TU MARCO FLORAL APLICADO AQUÍ -->
+    <img class="frame-img-card" src="img/marco-tarjetas.jpeg" alt="Marco floral"/>
+    <div class="card-frame-inner">
+      <div class="dc-icon-wrap"><i class="fa-solid fa-user-tie"></i></div>
+      <h3 class="dc-type">Formal / Playa</h3>
+      <p class="dc-note">Nos encantaría verte lucir espectacular para este día tan especial.</p>
+      
+      <div class="dc-forbidden">
+        <i class=""></i>
+        <span>Paleta de colores</span>
+      </div>
+      
+     <div class="palette">
+        <div class="swatch"><div class="swatch-circle" style="background-color: #E2ECEB;"></div><span class="swatch-name">Brisa</span></div>
+        <div class="swatch"><div class="swatch-circle" style="background-color: #A9CACC;"></div><span class="swatch-name">Celeste</span></div>
+        <div class="swatch"><div class="swatch-circle" style="background-color: #6491A2;"></div><span class="swatch-name">Océano</span></div>
+        <div class="swatch"><div class="swatch-circle" style="background-color: #F8EED9;"></div><span class="swatch-name">Beige</span></div>
+        <div class="swatch"><div class="swatch-circle" style="background-color: #FFFFFF;"></div><span class="swatch-name">Blanco</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- REGALOS -->
+<section id="regalos" class="reveal" style="text-align:center;padding:40px 8px">
+  <span class="section-label">Mesa de Regalos</span>
+  <h2 class="section-title">Obsequios</h2>
+  <div class="thin-line"></div>
+  
+  <div class="card-frame">
+    <!-- TU MARCO FLORAL APLICADO AQUÍ -->
+    <img class="frame-img-card" src="img/marco-tarjetas.jpeg" alt="Marco floral"/>
+    <div class="card-frame-inner">
+      <p class="regalo-text">El mejor regalo es tu presencia, pero si deseas tener un detalle conmigo, puedes hacerlo aquí.</p>
+      
+      <button class="btn-toggle" id="btn-regalos">
+        <i class="fa-solid fa-gift"></i> Ver opciones
+      </button>
+
+      <div class="gift-panel" id="panel-regalos">
+        <div class="gift-row">
+          <div>
+            <span class="gift-key">LLuvia de sobres</span>
+            <span class="gift-val" id="cuenta-numero">Deposita tu sobre el dia de la fiesta o si lo prefieres, puedes hacer una transferencia a este número de cuenta
+            </span>
+          </div>
+          
+        </div>
+        <div class="gift-row">
+          <div>
+            <span class="gift-key">CLABE Interbancaria</span>
+            <span class="gift-val" id="clabe-numero">012 345 67890 123456 7</span>
+          </div>
+          <button class="copy-btn" onclick="copiarTexto('clabe-numero')"><i class="fa-regular fa-copy"></i> Copiar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- RSVP -->
+<section id="rsvp" class="reveal" style="text-align:center;padding:40px 8px">
+  <span class="section-label">Asistencia</span>
+  <h2 class="section-title">Confirma tu<br>Presencia</h2>
+  <div class="thin-line"></div>
+  
+  <div class="card-frame">
+    <!-- TU MARCO FLORAL APLICADO AQUÍ -->
+    <img class="frame-img-card" src="img/marco-tarjetas.jpeg" alt="Marco floral"/>
+    <div class="card-frame-inner">
+      <p class="rsvp-intro">Por favor, confirma tu asistencia antes del 1 de Junio para contemplarte en mi celebración.</p>
+      
+      <!-- Mensaje dinámico de pases -->
+      <p id="pases-asignados-text" style="font-size: 13px; color: var(--magenta); font-weight: 600; margin-bottom: 15px; display: none;">
+        <i class="fa-solid fa-ticket"></i> Tienes <span id="num-pases">1</span> pase(s) asignado(s)
+      </p>
+
+      <div class="form-group">
+        <label for="invitado-nombre">Tu Nombre Completo</label>
+        <input type="text" id="invitado-nombre" placeholder="Ej. Familia Pérez">
+      </div>
+      
+      <div class="form-group">
+        <label for="invitado-boletos">¿Cuántos asisten?</label>
+        <select id="invitado-boletos">
+          <!-- Las opciones se generarán solas con el JavaScript -->
+        </select>
+      </div>
+
+
+      <button class="btn-whatsapp" onclick="enviarWhatsApp()">
+        <i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <h2 class="footer-name">Ariadna Maylen</h2>
+  <p class="footer-quote">"Hay momentos en la vida que son especiales por sí solos, pero compartirlos con las personas que quieres los hace inolvidables."</p>
+  <span class="footer-copy">© 2026 Ariadna Maylen · XV Años</span>
+</footer>
+
+<!-- JAVASCRIPT -->
+<script>
+  // --- 1. REPRODUCTOR DE MÚSICA ---
+  const musicBtn = document.getElementById('music-btn');
+  const bgMusic = document.getElementById('bg-music');
+  let isPlaying = false;
+
+  musicBtn.addEventListener('click', () => {
+    if (isPlaying) {
+      bgMusic.pause();
+      musicBtn.classList.remove('playing');
+    } else {
+      bgMusic.play();
+      musicBtn.classList.add('playing');
+    }
+    isPlaying = !isPlaying;
+  });
+
+  // --- 2. ANIMACIONES AL HACER SCROLL (REVEAL) ---
+  const reveals = document.querySelectorAll('.reveal');
+  const revealOnScroll = () => {
+    for (let i = 0; i < reveals.length; i++) {
+      const windowHeight = window.innerHeight;
+      const elementTop = reveals[i].getBoundingClientRect().top;
+      const elementVisible = 50; 
+      if (elementTop < windowHeight - elementVisible) {
+        reveals[i].classList.add('visible');
+      }
+    }
+  };
+  
+  window.addEventListener('scroll', revealOnScroll);
+  revealOnScroll(); 
+
+  
+
+  // --- 3. CUENTA REGRESIVA ---
+  const countDownDate = new Date(2026, 7, 4, 18, 0, 0).getTime();
+  const countdownTimer = setInterval(function() {
+    const now = new Date().getTime();
+    const distance = countDownDate - now;
+
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    document.getElementById("cd-days").innerText = days.toString().padStart(2, '0');
+    document.getElementById("cd-hours").innerText = hours.toString().padStart(2, '0');
+    document.getElementById("cd-mins").innerText = minutes.toString().padStart(2, '0');
+    document.getElementById("cd-secs").innerText = seconds.toString().padStart(2, '0');
+
+    if (distance < 0) {
+      clearInterval(countdownTimer);
+      document.querySelector(".countdown-grid").innerHTML = "<h3 style='color: var(--magenta);grid-column: span 4;'>¡El gran día ha llegado!</h3>";
+    }
+  }, 1000);
+
+  // --- 4. TOGGLE MESA DE REGALOS ---
+  document.getElementById('btn-regalos').addEventListener('click', function() {
+    const panel = document.getElementById('panel-regalos');
+    panel.classList.toggle('open');
+  });
+
+  // --- 5. COPIAR AL PORTAPAPELES ---
+  function copiarTexto(id) {
+    const texto = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(texto).then(() => {
+      alert("¡Número copiado!");
+    });
+  }
+
+  // --- 7. LÓGICA DE PASES POR URL ---
+  // Leemos el número de la URL (ej: ?pases=3)
+  const urlParams = new URLSearchParams(window.location.search);
+  let pases = urlParams.get('pases');
+
+  // Si el enlace no tiene número, le damos 1 por defecto
+  if (!pases || isNaN(pases)) {
+    pases = 1;
+  } else {
+    pases = parseInt(pases);
+  }
+
+  // Mostramos el texto de cuántos pases tiene
+  document.getElementById('pases-asignados-text').style.display = 'block';
+  document.getElementById('num-pases').innerText = pases;
+
+  // Llenamos el menú desplegable (Select)
+  const selectBoletos = document.getElementById('invitado-boletos');
+  selectBoletos.innerHTML = '<option value="0">No podremos asistir</option>';
+  
+  for (let i = 1; i <= pases; i++) {
+    let texto = (i === 1) ? `Sí, asistiré (1 persona)` : `Sí, asistiremos (${i} personas)`;
+    selectBoletos.innerHTML += `<option value="${i}">${texto}</option>`;
+  }
+
+  // --- 6. ENVIAR CONFIRMACIÓN POR WHATSAPP ---
+  function enviarWhatsApp() {
+    const nombre = document.getElementById('invitado-nombre').value;
+    const boletos = document.getElementById('invitado-boletos').value;
+    
+    // 👇 TU NÚMERO AQUÍ
+    const telefono = "529381231688"; 
+
+    if(nombre.trim() === "") {
+      alert("Por favor, ingresa tu nombre para confirmar.");
+      return;
+    }
+
+    let mensaje = "";
+    
+    if (boletos === "0") {
+      mensaje = `¡Hola! Soy ${nombre}. %0ATe escribo para avisarte que tristemente *no podré asistir* a los XV años de Ariadna Maylen. ¡Muchas felicidades!`;
+    } else {
+      mensaje = `¡Hola! Soy ${nombre}. %0AQuiero confirmar mi asistencia a los XV años de Ariadna Maylen. %0A🎟️ *Boletos confirmados: ${boletos}*`;
+    }
+
+    const url = `https://wa.me/${telefono}?text=${mensaje}`;
+    window.open(url, '_blank');
+  }
+
+
+    const mensaje = `¡Hola! Soy ${nombre}. %0AQuiero confirmar que *${asistencia}* a los XV años de Ariadna Maylen.`;
+    const url = `https://wa.me/${telefono}?text=${mensaje}`;
+    window.open(url, '_blank');
+  
+</script>
+
+</body>
+</html>
